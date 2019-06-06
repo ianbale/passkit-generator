@@ -216,8 +216,6 @@ class Pass {
 
 			archive.pipe(passStream);
 
-			FieldsArray.emptyUnique();
-
 			return archive.finalize().then(() => passStream);
 		} catch (err) {
 			if (err.code && err.code === "ENOENT") {
@@ -259,7 +257,7 @@ class Pass {
 	 */
 
 	expiration(date, format) {
-		if (typeof date !== "string" && !date instanceof Date) {
+		if (typeof date !== "string") {
 			return this;
 		}
 
@@ -327,11 +325,6 @@ class Pass {
 
 			return assignLength(Number(!cond), this);
 		} else if (type === "relevantDate") {
-			if (typeof data !== "string" && !data instanceof Date) {
-				genericDebug(formatMessage("DATE_FORMAT_UNMATCH", "Relevant Date"));
-				return this;
-			}
-			
 			let dateParse = dateToW3CString(data, relevanceDateFormat);
 
 			if (!dateParse) {
