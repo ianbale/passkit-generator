@@ -44,12 +44,7 @@ class Pass {
 
 		this._fields = ["primaryFields", "secondaryFields", "auxiliaryFields", "backFields", "headerFields"];
 
-		this.fieldsKeys = new Set();
-
-		this._fields.forEach(name => {
-		    this[name] = new FieldsArray(this.fieldsKeys);
-		});
-
+		this._fields.forEach(a => this[a] = new FieldsArray());
 		this[transitType] = "";
 
 		// Assigning model and _props to this
@@ -218,6 +213,8 @@ class Pass {
 
 			archive.pipe(passStream);
 
+			FieldsArray.emptyUnique();
+
 			return archive.finalize().then(() => passStream);
 		} catch (err) {
 			if (err.code && err.code === "ENOENT") {
@@ -259,7 +256,7 @@ class Pass {
 	 */
 
 	expiration(date, format) {
-		if (typeof date !== "string") {
+		if (typeof date !== "string" && !(date instanceof Date)) {
 			return this;
 		}
 
@@ -327,6 +324,11 @@ class Pass {
 
 			return assignLength(Number(!cond), this);
 		} else if (type === "relevantDate") {
+			if (typeof data !== "string" && !(data instanceof Date)) {
+				genericDebug(formatMessage("DATE_FORMAT_UNMATCH", "Relevant Date"));
+				return this;
+			}
+			
 			let dateParse = dateToW3CString(data, relevanceDateFormat);
 
 			if (!dateParse) {
