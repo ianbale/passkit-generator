@@ -2,50 +2,17 @@ const schema = require("./schema");
 const debug = require("debug")("passkit:fields");
 
 /**
- * Pass fields must be unique (for key) in its scope.
- * Therefore we use a Set to keep them tracked.
- */
-
-/**
  * Class to represent lower-level keys pass fields
  * @see https://apple.co/2wkUBdh
  */
 
-class FieldsArray extends Object {
-	constructor(fields) {
-		super();
+const poolSymbol = Symbol("pool");
 
-		/**
-		 * Pass fields must be unique (for key) in its scope.
-		 * Therefore we use a Set to keep them tracked.
-		*/
-
-		this.fieldsKeys = new Set();
-		fields.forEach(a => this[a] = new ItemsArray(this));
-	}
-
-	addFieldKey(key) {
-		if (this.fieldsKeys.has(key)) {
-			debug(`Field with key "${key}" discarded: fields must be unique in pass scope.`);
-		} else {
-			this.fieldsKeys.add(key);
-		}
-	}
-
-	deleteFieldKey(key) {
-		this.fieldsKeys.delete(key);
-	}
-
-	emptyUnique() {
-		this.fieldsKeys.clear();
-	}
-}
-
-class ItemsArray extends Array {
-	constructor(owner) {
-		super();
-		
-		this.owner = owner;
+class FieldsArray extends Array {
+	
+	constructor(pool,...args) {
+    	super(...args);
+    	this[poolSymbol] = pool;
 	}
 
 	/**
@@ -59,12 +26,12 @@ class ItemsArray extends Array {
 				return acc;
 			}
 
-			if (acc.some(e => e.key === current.key)) {
-				debug(`Field with key "${current.key}" discarded: fields must be unique in pass scope.`);
-			} else {
-				this.owner.addFieldKey(current.key)
-				acc.push(current);
-			}
+			if (acc.some(e => e.key === current.key) || this[poolSymbol].has(current.key)) {
+				debug(`Field with key "${key}" discarded: fields must be unique in pass scope.`);
+			} 
+
+			this[poolSymbol].add(current.key)
+			acc.push(current)
 
 			return acc;
 		}, []);
@@ -78,10 +45,10 @@ class ItemsArray extends Array {
 	 */
 
 	pop() {
-		const element = Array.prototype.pop.call(this);
-		this.owner.deleteFieldKey(element.key)
-		return element;
-	}
+	 	const element = Array.prototype.pop.call(this);
+		this[poolSymbol].delete(element.key)
+    	return element;
+  	}
 
 	/**
 	 * Like `Array.prototype.splice` but will alter
@@ -90,7 +57,7 @@ class ItemsArray extends Array {
 
 	splice(start, deleteCount, ...items) {
 		const removeList = this.slice(start, deleteCount+start);
-		removeList.forEach(item => this.owner.deleteFieldKey(item.key));
+		removeList.forEach(item => this[poolSymbol].delete(item.key));
 
 		return Array.prototype.splice.call(this, start, deleteCount, items);
 	}
