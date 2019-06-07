@@ -47,8 +47,8 @@ class FieldsArray extends Array {
 	pop() {
 	 	const element = Array.prototype.pop.call(this);
 		this[poolSymbol].delete(element.key)
-    	return element;
-  	}
+		return element;
+	}
 
 	/**
 	 * Like `Array.prototype.splice` but will alter
