@@ -11,8 +11,8 @@ const poolSymbol = Symbol("pool");
 class FieldsArray extends Array {
 	
 	constructor(pool,...args) {
-    	super(...args);
-    	this[poolSymbol] = pool;
+		super(...args);
+		this[poolSymbol] = pool;
 	}
 
 	/**
