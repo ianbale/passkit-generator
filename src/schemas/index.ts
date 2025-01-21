@@ -441,6 +441,7 @@ export const OverridablePassProps = Joi.object<OverridablePassProps>({
 	suppressStripShine: Joi.boolean(),
 	maxDistance: Joi.number().positive(),
 	authenticationToken: Joi.string().min(16),
+	stripColor: Joi.string().regex(RGB_HEX_COLOR_REGEX),
 	labelColor: Joi.string().regex(RGB_HEX_COLOR_REGEX),
 	backgroundColor: Joi.string().regex(RGB_HEX_COLOR_REGEX),
 	foregroundColor: Joi.string().regex(RGB_HEX_COLOR_REGEX),
