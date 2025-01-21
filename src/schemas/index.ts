@@ -100,7 +100,8 @@ export interface PassProps {
 	backgroundColor?: string;
 	foregroundColor?: string;
 	labelColor?: string;
-
+	stripColor?: string;
+	
 	nfc?: NFC;
 	beacons?: Beacon[];
 	barcodes?: Barcode[];
